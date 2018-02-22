@@ -1,6 +1,7 @@
 package imie.java.tp.model;
 
 import javax.persistence.*;
+import java.util.List;
 
 @Entity
 @Table(name = "server")
@@ -50,5 +51,17 @@ public class Server {
 
     public void setName(String name) {
         this.name = name;
+    }
+
+
+    @OneToMany (mappedBy = "server")
+    private List<ServerMonitoring> monitorings;
+
+    public List<ServerMonitoring> getMonitorings() {
+        return monitorings;
+    }
+
+    public void setMonitorings(List<ServerMonitoring> monitorings) {
+        this.monitorings = monitorings;
     }
 }

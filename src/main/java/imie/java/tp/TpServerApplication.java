@@ -1,4 +1,4 @@
-package imie.java.tp.tpserver;
+package imie.java.tp;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;

@@ -1,4 +1,4 @@
-package imie.java.tp.tpserver;
+package imie.java.tp;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;

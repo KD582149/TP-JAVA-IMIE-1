@@ -1,34 +1,34 @@
-package imie.java.tp.model;
+package imie.java.tp.model.dto;
 
-import javax.persistence.*;
+import com.fasterxml.jackson.annotation.JsonView;
+import imie.java.tp.model.Identifiable;
+import imie.java.tp.model.Views;
+
 import java.util.List;
 
-@Entity
-@Table(name = "server")
-public class Server {
+public class ServerTO implements Identifiable<Integer> {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
-    @Column(name = "server_id")
     private Integer id;
 
-    @Column(name = "memory_size", nullable = false)
     private Long memorySize;
 
-    @Column(name = "disk_size", nullable = false)
     private Long diskSize;
 
-    @Column(name = "server_name", length = 100, nullable = false)
     private String name;
 
+    private List<MonitoringTO> monitorings;
+
+    @Override
     public Integer getId() {
         return id;
     }
 
+    @Override
     public void setId(Integer id) {
         this.id = id;
     }
 
+    @JsonView(Views.Public.class)
     public Long getMemorySize() {
         return memorySize;
     }
@@ -37,6 +37,7 @@ public class Server {
         this.memorySize = memorySize;
     }
 
+    @JsonView(Views.Public.class)
     public Long getDiskSize() {
         return diskSize;
     }
@@ -45,6 +46,7 @@ public class Server {
         this.diskSize = diskSize;
     }
 
+    @JsonView(Views.Public.class)
     public String getName() {
         return name;
     }
@@ -53,15 +55,13 @@ public class Server {
         this.name = name;
     }
 
-
-    @OneToMany (mappedBy = "server")
-    private List<ServerMonitoring> monitorings;
-
-    public List<ServerMonitoring> getMonitorings() {
+    @JsonView(Views.Server.class)
+    public List<MonitoringTO> getMonitorings() {
         return monitorings;
     }
 
-    public void setMonitorings(List<ServerMonitoring> monitorings) {
+    public void setMonitorings(List<MonitoringTO> monitorings) {
         this.monitorings = monitorings;
     }
+
 }

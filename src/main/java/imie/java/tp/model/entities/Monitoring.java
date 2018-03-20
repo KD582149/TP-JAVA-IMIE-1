@@ -1,12 +1,12 @@
-package imie.java.tp.model;
+package imie.java.tp.model.entities;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
+import imie.java.tp.model.Identifiable;
 
 import javax.persistence.*;
 
 @Entity
 @Table(name = "server_monitoring")
-public class ServerMonitoring {
+public class Monitoring implements Identifiable<Integer> {
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
@@ -61,15 +61,6 @@ public class ServerMonitoring {
     @ManyToOne
     @JoinColumn(name = "server_ref")
     private Server server;
-
-
-    public Integer getId() {
-        return id;
-    }
-
-    public void setId(Integer id) {
-        this.id = id;
-    }
 
     public Long getTime() {
         return time;
@@ -191,13 +182,21 @@ public class ServerMonitoring {
         this.diskUsed = diskUsed;
     }
 
-    @JsonIgnore
     public Server getServer() {
         return server;
     }
 
-
     public void setServer(Server server) {
         this.server = server;
+    }
+
+    @Override
+    public Integer getId() {
+        return id;
+    }
+
+    @Override
+    public void setId(Integer id) {
+        this.id = id;
     }
 }

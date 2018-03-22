@@ -1,6 +1,6 @@
 package imie.java.tp.errors;
 
-import imie.java.tp.utils.PropertyBuilder;
+import imie.java.tp.utils.MapBuilder;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ControllerAdvice;
@@ -21,7 +21,7 @@ public class GlobalExceptionHandler {
 
         return ResponseEntity
                 .status(status)
-                .body(PropertyBuilder.instance()
+                .body(MapBuilder.instance()
                     .put("message", ex.getMessage())
                     .put("datetime", ISO_DATE_TIME.format(now()))
                     .build());

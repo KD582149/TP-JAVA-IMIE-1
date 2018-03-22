@@ -2,11 +2,11 @@ package imie.java.tp.services;
 
 import imie.java.tp.errors.NotFoundException;
 import imie.java.tp.model.entities.Monitoring;
-import imie.java.tp.model.entities.Server;
 import imie.java.tp.repositories.MonitoringRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -37,9 +37,13 @@ public class MonitoringService {
 
     public Monitoring find(Integer id) throws NotFoundException {
         if (!repository.exists(id)) {
-            throw new NotFoundException(id, Server.class);
+            throw new NotFoundException(id, Monitoring.class);
         }
         return repository.findOne(id);
+    }
+
+    public List<Monitoring> findAllPaged(int page, int size) {
+        return repository.findAll(new PageRequest(page, size)).getContent();
     }
 
     public List<Monitoring> findAll(String rawBefore, String rawAfter) {

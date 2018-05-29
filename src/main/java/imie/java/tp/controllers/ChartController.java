@@ -37,7 +37,7 @@ public class ChartController {
      * @return Les informations brutes pour exploitation par la librairie de graphiques
      */
     @PostMapping
-    public List<List<String>> getServerInfo(
+    public List<List<Number>> getServerInfo(
         @RequestBody @Valid ChartRequest req)
     {
         return getServerInfo(req.getServer(), req.getSeries());
@@ -51,7 +51,7 @@ public class ChartController {
      * @return Les informations brutes pour exploitation par la librairie de graphiques
      */
     @GetMapping
-    public List<List<String>> getServerInfo(
+    public List<List<Number>> getServerInfo(
         @RequestParam(value = "server") String server,
         @RequestParam(value = "series", required = false) List<String> seriesList
     ) {
@@ -79,7 +79,7 @@ public class ChartController {
      * Classe transformant chaque enregistrement retourné par GridModel en
      * tableau de données brutes JSON.
      */
-    private class ChartDataTransformer implements ResultTransformer<List<String>> {
+    private class ChartDataTransformer implements ResultTransformer<List<Number>> {
 
         private List<String> series;
 
@@ -88,11 +88,19 @@ public class ChartController {
         }
 
         @Override
-        public List<String> apply(Row row) {
+        public List<Number> apply(Row row) {
             return series.stream()
                     .map(serie -> row.containsKey(serie) ?
-                            !isEmpty(row.get(serie)) ? row.get(serie).toString() : null : null)
+                            parseNumber(row.get(serie)) : null)
                     .collect(Collectors.toList());
+        }
+
+        private Number parseNumber(Object o) {
+            try {
+                return Double.parseDouble(o.toString());
+            } catch (NumberFormatException ex) {
+                return null;
+            }
         }
     }
 

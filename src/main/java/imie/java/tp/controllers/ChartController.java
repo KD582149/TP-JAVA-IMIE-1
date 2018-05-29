@@ -1,38 +1,99 @@
 package imie.java.tp.controllers;
 
-import imie.java.tp.model.entities.ChartType;
-import imie.java.tp.model.entities.Monitoring;
-import imie.java.tp.services.MonitoringService;
-import imie.java.tp.services.charts.ChartData;
-import imie.java.tp.services.charts.adapters.NgxChartAdapter;
-import imie.java.tp.services.charts.adapters.NgxChartData;
-import imie.java.tp.services.charts.configurations.ChartConfiguration;
-import imie.java.tp.services.charts.configurations.ChartConfigurator;
+import imie.java.tp.errors.BadRequestException;
+import imie.java.tp.errors.NotFoundException;
+import imie.java.tp.model.ChartRequest;
+import imie.java.tp.model.CsvMemoryModel;
+import org.gridmodel.core.model.Row;
+import org.gridmodel.query.results.ResultStore;
+import org.gridmodel.query.results.ResultTransformer;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+
+import javax.validation.Valid;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.stream.Collectors;
+
+import static imie.java.tp.utils.GeneralUtils.isEmpty;
+import static imie.java.tp.utils.GeneralUtils.valueOrDefault;
+import static org.gridmodel.query.criteria.CriterionFactory.equalTo;
 
 @RestController
 @RequestMapping("/api/charts")
 public class ChartController {
 
-    private final MonitoringService service;
+    private final CsvMemoryModel model;
 
     @Autowired
-    public ChartController(MonitoringService service) {
-        this.service = service;
+    public ChartController(CsvMemoryModel model) {
+        this.model = model;
     }
 
-    @RequestMapping("test")
-    NgxChartData chartTest() {
-        ChartConfiguration<Monitoring> cpuUsage = ChartConfigurator.newConfigurator(Monitoring.class)
-                .name("Utilisation CPU")
-                .abscissa(Monitoring::getTime)
-                .chartType(ChartType.LINE_CHART)
-                .serie("CPU #0", Monitoring::getCpu0)
-                .build();
-
-        ChartData data = cpuUsage.getProcessor().process(service.findAllPaged(0, 200));
-        return new NgxChartAdapter().adapt(data);
+    /**
+     * Renvoie les informations du serveur demandé
+     * * Version requête JSON
+     * @param req La requête cliente
+     * @return Les informations brutes pour exploitation par la librairie de graphiques
+     */
+    @PostMapping
+    public List<List<String>> getServerInfo(
+        @RequestBody @Valid ChartRequest req)
+    {
+        return getServerInfo(req.getServer(), req.getSeries());
     }
+
+    /**
+     * Renvoie les informations du serveur demandé
+     * * Version Query Strings
+     * @param server Le nom du serveur
+     * @param seriesList La liste des séries (colonnes) à afficher
+     * @return Les informations brutes pour exploitation par la librairie de graphiques
+     */
+    @GetMapping
+    public List<List<String>> getServerInfo(
+        @RequestParam(value = "server") String server,
+        @RequestParam(value = "series", required = false) List<String> seriesList
+    ) {
+        List<String> series = new ArrayList<>(
+                valueOrDefault(seriesList, model.getSeries()));
+
+        if (!series.contains("time"))
+            series.add(0, "time");
+
+        if (isEmpty(server))
+            throw new BadRequestException("You must specify a server");
+
+        if (!model.getServers().contains(server))
+            throw new NotFoundException("The server %s is unknown from the server.");
+
+        ResultStore rs = model.getBaseInstance()
+                .query(series)
+                .where("server", equalTo(server))
+                .fetch();
+
+        return rs.transform(new ChartDataTransformer(series));
+    }
+
+    /**
+     * Classe transformant chaque enregistrement retourné par GridModel en
+     * tableau de données brutes JSON.
+     */
+    private class ChartDataTransformer implements ResultTransformer<List<String>> {
+
+        private List<String> series;
+
+        public ChartDataTransformer(List<String> series) {
+            this.series = series;
+        }
+
+        @Override
+        public List<String> apply(Row row) {
+            return series.stream()
+                    .map(serie -> row.containsKey(serie) ?
+                            !isEmpty(row.get(serie)) ? row.get(serie).toString() : null : null)
+                    .collect(Collectors.toList());
+        }
+    }
+
 }

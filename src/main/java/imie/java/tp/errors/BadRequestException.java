@@ -4,12 +4,12 @@ import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.ResponseStatus;
 
 @ResponseStatus(HttpStatus.BAD_REQUEST)
-public class BadParametersException extends WebServiceException {
-    public BadParametersException(String message) {
+public class BadRequestException extends WebServiceException {
+    public BadRequestException(String message) {
         super(message);
     }
 
-    public BadParametersException(String message, Throwable cause) {
+    public BadRequestException(String message, Throwable cause) {
         super(message, cause);
     }
 }

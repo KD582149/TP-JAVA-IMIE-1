@@ -29,7 +29,6 @@ public class CsvMemoryModel {
             "srv-DC-london_global.csv" };
 
     private static final String[] SERIES = {
-        "time",
         "memory_used", "memory_size", "traffic_in", "traffic_out", "security_error", "disk_used", "disk_size",
         "cpu0", "cpu1", "cpu2", "cpu3", "cpu4", "cpu5", "cpu6", "cpu7", "cpu8"
     };
@@ -78,6 +77,8 @@ public class CsvMemoryModel {
     }
 
     public List<String> getSeries() {
-        return asList(SERIES);
+        List<String> series = new ArrayList<>(asList(SERIES));
+        series.add(0, "time");
+        return series;
     }
 }

@@ -29,14 +29,12 @@ public class CsvMemoryModel {
             "srv-DC-london_global.csv" };
 
     private static final String[] SERIES = {
-            "time",
+        "time",
         "memory_used", "memory_size", "traffic_in", "traffic_out", "security_error", "disk_used", "disk_size",
         "cpu0", "cpu1", "cpu2", "cpu3", "cpu4", "cpu5", "cpu6", "cpu7", "cpu8"
     };
 
     private final Instance baseInstance;
-
-
 
     private static List<Source> getCsvSources(String... filenames) {
         ClassLoader classloader = Thread.currentThread().getContextClassLoader();
